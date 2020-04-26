@@ -1,0 +1,85 @@
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry}
+
+* Overview
+Welcome to our Tufts MATH260 final project! Here we plan to build a
+recommender system for board games, using a set of 13M reviews from
+BoardGameGeek. Our plan is to use some type of kernel method to
+perform the prediction. 
+
+The project idea comes from a kaggle challenge. You can find
+information about the challenge [[https://www.kaggle.com/jvanelteren/boardgamegeek-reviews][here]] on kaggle, it is also where you
+will find the dataset.
+
+* Project Setup
+** Dataset
+The dataset for this project is rather large, so we don't want to
+include it in the project repository. We have the dataset setup to be
+ignored by .gitignore, so to ensure that the files are in the same
+place for everyone, we recommend running the following command to
+install the dataset (or run the equivalent).
+
+#+BEGIN_EXPORT latex
+\begin{minted}[mathescape, 
+xleftmargin=2pt, 
+xrightmargin=2pt, 
+style=autumn, 
+framesep=3mm,
+frame=lines
+]{bash}
+unzip -d data boardgamegeek-reviews.zip 
+\end{minted}
+#+END_EXPORT
+
+** Python Environment
+To ensure everyone is running the same version of python we include a
+pre-configured conda environment. To install this environment, run
+the following command from the root of the directory:
+
+#+BEGIN_EXPORT latex
+\begin{minted}[mathescape, 
+xleftmargin=2pt, 
+xrightmargin=2pt, 
+style=autumn, 
+framesep=3mm,
+frame=lines
+]{sh}
+conda env create -n math260 -f environment.yml
+conda activate math260
+\end{minted}
+#+END_EXPORT
+
+Then everything should be setup and ready to go. 
+
+** Code
+The main driver for the project code is located under
+[[file:src/math260/recommend.py][src/math260/recommend.py]]. Make sure to run it from the root directory
+of the repository.
+
+* Logistics
+We are all working from different timezones on different
+schedules. This makes collaboration difficult. To ease the burden, we
+hope for a couple of things:
+
+  - We comment all of our code
+  - We document what we've done
+  - We write down our tasks
+  - We communicate with each other :)
+
+Hopefully, none of this looks too difficult. Now, for documenting what
+we've done and for writing down our tasks, I placed two files called
+[[file:docs/tasks.org][tasks.org]] and [[file:docs/notes.org][notes.org]] in the [[file:docs/][docs/]] subdirectory. 
+
+** [[file:docs/tasks.org][tasks.org]] 
+This file should be used for documenting tasks that we have done and
+tasks that we need to do. The format should be pretty
+self-explanatory, don't worry if you mess it up. Try to document
+exactly what you have done or what needs to be done here. Take a look
+at the file for an example.
+
+** [[file:docs/notes.org][notes.org]]
+This file should be used for documenting important components of our
+project that we all need to reference. For example, if a variable
+named by the letter A typically denotes an adjacency matrix, document
+that here. Again, don't worry about the structure. It's a plain text
+document, the information is what is important.
