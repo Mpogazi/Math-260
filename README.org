@@ -19,6 +19,13 @@ ignored by .gitignore, so to ensure that the files are in the same
 place for everyone, we recommend running the following command to
 install the dataset (or run the equivalent).
 
+Once installed, to reduce the size we strip out all the unnecessary fields (mostly
+by removing the comments field) run the command:
+
+python src/math260/data_prep.py
+
+from the root directory of the project. (TODO learn how to make that a codeblock)
+
 #+BEGIN_EXPORT latex
 \begin{minted}[mathescape, 
 xleftmargin=2pt, 
