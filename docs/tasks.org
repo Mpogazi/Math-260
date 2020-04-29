@@ -8,11 +8,10 @@
   the components of the system work as necessary before we plug in our
   high-powered algorithm.
 ** TODO Load/clean dataset
-   Before we can use the data we need to load it and remove the
-   cruft. Please document what components of the data you remove and
-   how you represent the dataset internally if it is not
-   obvious. Anything that seems relevant or comes up, please document
-   it!
+   Loading the dataset is complete but there is currently no true
+   cleaning being done. Examples of things we may want to do are
+   removing users/games with too few reviews, checking for any
+   fuzzy matches which may be data entry mistakes.
 ** TODO Decide on simple recommendation algorithm
 ** TODO Run simple recommendation algorithm on toy dataset
 ** TODO Write more TODOs!
