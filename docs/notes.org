@@ -1,1 +1,4 @@
-There are no notes in here yet!
+Due to the size of the reviews set (1.2GB) and the fact that 800MB of that 
+is not going to be used, most of which comes from comments, I wrote a script
+that strips out the useless parts, which makes the dataset much more wieldy 
+on a personal machine. (See the Readme for instructions)
