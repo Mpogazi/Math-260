@@ -1,4 +1,13 @@
 Due to the size of the reviews set (1.2GB) and the fact that 800MB of that 
 is not going to be used, most of which comes from comments, I wrote a script
 that strips out the useless parts, which makes the dataset much more wieldy 
-on a personal machine. (See the Readme for instructions)
+on a personal machine. (See the Readme for instructions) To compliment this,
+I have also written some code to create debug datasets which are much smaller
+and can be used for writing code so you don't need to waste time re-loading
+the big dataset over and over again. These exist in the data_prep.py file.
+(For tractability we may need to use this function to reduce the size of the
+dataset down to something more manageable.)
+
+Also, the data is loaded into a scipy sparse coo matrix and we use two
+matrices 1) for holding all the reviews 2) holding flags for if a review is
+included or not.
