@@ -60,8 +60,26 @@ Then everything should be setup and ready to go.
 
 ** Code
 The main driver for the project code is located under
-[[file:src/math260/recommend.py][src/math260/recommend.py]]. Make sure to run it from the root directory
+[[file:src/math260/main.py][src/math260/main.py]] Make sure to run it from the root directory
 of the repository.
+** Tests
+Tests are stored in the tests/ directory of the project. All
+tests need to have a name of the form ~tests_*.py~ or they will
+not be ran. To see an example, check out ~test_basic_recommender.py~.
+
+To run all tests, do the following:
+
+#+BEGIN_EXPORT latex
+\begin{minted}[mathescape, 
+xleftmargin=2pt, 
+xrightmargin=2pt, 
+style=autumn, 
+framesep=3mm,
+frame=lines
+]{bash}
+./run_tests.sh
+\end{minted}
+#+END_EXPORT
 
 * Logistics
 We are all working from different timezones on different

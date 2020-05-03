@@ -2,7 +2,7 @@
   Set up the initial project repository for collaboration. Need some
   way to make sure everyone is on the same page so that we can make
   progress. 
-* TODO Get simple recommendation scheme working for our dataset [0%]
+* TODO Get simple recommendation scheme working for our dataset [66%]
   Before we can run our powerhouse method, we need to have a simple
   recommendation algorithm to run our dataset. This will ensure all
   the components of the system work as necessary before we plug in our
@@ -12,8 +12,23 @@
    cleaning being done. Examples of things we may want to do are
    removing users/games with too few reviews, checking for any
    fuzzy matches which may be data entry mistakes.
-** TODO Decide on simple recommendation algorithm
-** TODO Run simple recommendation algorithm on toy dataset
+** DONE Decide on simple recommendation algorithm (Henri)
+** DONE Run simple recommendation algorithm on toy dataset (Henri)
+   Built two simple recommendation algorithms (recommend the most
+popular review and recommend a random review) and tested them on a
+test dataset with 6 users and 4 games.
+** DONE Figure out how to evaluate performance of our algorithm (Henri)
+   Because we are recommend a ranked list of reviews we can't
+use a typical accuracy metric to do performance analysis. Instead,
+we output a confusion matrix (true positives, true negatives, etc.) for
+each users recommendation. As of now, the false negative rate might
+seem high. This is because when we remove say, 50% of the labels, we
+don't recommend any of the labels that we didn't remove and will
+always get them wrong. For now it doesn't really matter and it will
+be easy to tweak when we need to.
+** DONE Set up tests and write code to automatically run tests
+   Tests are specified under the tests/ directory and can be ran
+automatically with ./run_tests.sh.
 ** TODO Write more TODOs!
    Anything that needs to be done/thought about, write a TODO for
    it. It will help immensely with our project.
