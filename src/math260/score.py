@@ -50,11 +50,6 @@ def loocv(alpha, review_matrix, recommendation_algorithm, randomized=False):
 
         remove_reviews(alpha, user, review_matrix, randomized) 
         recommendation = recommendation_algorithm(user, review_matrix) # perform recommendation
-
-        print(f"Old reviews {user_reviews}")
-        print(f"Training reviews {review_matrix[user]}")
-        print(f"Recommendations {recommendation}")
-
         review_matrix[user] = user_reviews # restore reviews
 
         # compute scores

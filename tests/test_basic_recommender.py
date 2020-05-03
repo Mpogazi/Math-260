@@ -17,7 +17,6 @@ ranked_games = np.argsort(-np.sum(review_matrix, axis=0))
 class TestRecommenders(unittest.TestCase):
     def test_popular_recommend(self):
         recommendations = recommend.popular_recommend(range(0, 6), review_matrix, ranked_games)
-        print(recommendations)
         correct = {0: [3, 0], 1: [1], 2: [0, 1], 3: [2, 0, 1], 4: [3], 5: [3, 0, 1]}
         for user, games in correct.items():
             self.assertEqual(games, recommendations[user])
