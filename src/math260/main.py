@@ -1,4 +1,5 @@
 import data_prep
+import recommend
 
 GAMES_DATA_FILE = "data/2019-05-02-debug.csv"
 # This must be the debug dataset if working on a personal machine.
