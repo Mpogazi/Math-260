@@ -11,6 +11,7 @@ not (1/0 respectively).
 """
 
 from collections import defaultdict
+from enum import Enum
 import numpy as np
 import random 
 
