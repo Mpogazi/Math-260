@@ -41,3 +41,5 @@ user has reviewed that game, and the actual matrix with reviews as entries
 '''
 games_map, users_map, review_matrix, bool_matrix = data_prep.create_review_matrix(
     games, users, True)
+
+print(bool_matrix.shape)

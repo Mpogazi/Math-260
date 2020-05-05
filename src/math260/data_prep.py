@@ -450,8 +450,12 @@ def create_review_matrix(games, users, verbose=False):
     if verbose:
         print(' - Generating coordinates')
 
-    rating_coords = []
-    bool_coords = []
+    ratings = []
+    bools = []
+
+    row_idx = []
+    col_idx = []
+
     for game_name in games:
         game_index = games_map['forward'][game_name]
         game = games[game_name]
@@ -459,14 +463,16 @@ def create_review_matrix(games, users, verbose=False):
             user_name = review['user']
             rating = review['rating']
             user_index = users_map['forward'][user_name]
-            rating_coords.append([rating, [user_index, game_index]])
-            bool_coords.append([1, [user_index, game_index]])
+            ratings.append(rating)
+            bools.append(1)
+            row_idx.append(user_index)
+            col_idx.append(game_index)
     
     if verbose:
         print(' - Creating sparse matrices')
 
-    rating_matrix = sp.coo_matrix(rating_coords)
-    bool_matrix = sp.coo_matrix(bool_coords)
+    rating_matrix = sp.coo_matrix((ratings, (row_idx, col_idx)))
+    bool_matrix = sp.coo_matrix((bools, (row_idx, col_idx)))
 
     if verbose:
         print(' - Matrices created\n')
