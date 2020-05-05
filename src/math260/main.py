@@ -1,5 +1,6 @@
 import data_prep
 import recommend
+import item_based_cf
 
 GAMES_DATA_FILE = "data/2019-05-02-debug.csv"
 # This must be the debug dataset if working on a personal machine.
@@ -41,3 +42,5 @@ user has reviewed that game, and the actual matrix with reviews as entries
 '''
 games_map, users_map, review_matrix, bool_matrix = data_prep.create_review_matrix(
     games, users, True)
+
+print(item_based_cf.similarity_matrix(games_map, review_matrix)) 
