@@ -3,6 +3,30 @@ import numpy.ma as ma
 
 
 '''
+Predict rating for a certain user
+
+Method: Weighted average
+
+args:
+
+returns: rating
+'''
+
+
+'''
+Calculating the cosine similarity between two items
+
+args: ratings1, ratings2 (array of ratings)
+
+returns: similarity_score(a float)
+'''
+def CosineSimilarity(ratings1, ratings2):
+    X = np.array(ratings1['ratings'])
+    Y = np.array(ratings2['ratings'])
+    return (np.dot(X, Y) / (np.sqrt(np.dot(X, X) * np.sqrt(np.dot(Y, Y)))))
+
+
+'''
 Calculating the similarity between two items
 
 args: ratings1, ratings2 (arrays of ratings)
@@ -36,10 +60,10 @@ def similarity_matrix(games_map, review_matrix, f=None):
         for key2 in games:
             id1, id2 = games[key], games[key2]
             if (id1 == id2):
-                matrix.append(1)
+                matrix.append([1, id1, id2])
             else:
                 data = data_arrange([id1, id2], review_matrix)
-                matrix.append(PearsonSimilarity(data[0], data[1]))
+                matrix.append([PearsonSimilarity(data[0], data[1]), id1, id2])
     return np.array(matrix, ndmin=2)
 
 

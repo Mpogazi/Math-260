@@ -7,4 +7,5 @@ data/*
 **/*.tex
 **/*-README/
 **/.DS_store
+/src/math260/data
 **/*.png

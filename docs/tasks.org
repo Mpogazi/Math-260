@@ -26,6 +26,8 @@ seem high. This is because when we remove say, 50% of the labels, we
 don't recommend any of the labels that we didn't remove and will
 always get them wrong. For now it doesn't really matter and it will
 be easy to tweak when we need to.
+** (NOT VERY COMPLETE) Item-based collaborative filtering
+   Incomplete (optimizing the similarity matrix)
 ** DONE Set up tests and write code to automatically run tests
    Tests are specified under the tests/ directory and can be ran
 automatically with ./run_tests.sh.
