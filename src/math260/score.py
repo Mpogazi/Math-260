@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from tqdm import tqdm
 
 def remove_reviews(alpha, user, review_matrix, bool_matrix, randomized):
     """Removes a fraction alpha of the reviews from the specified user."""
@@ -39,7 +40,7 @@ def rmsecv(alpha, review_matrix, bool_matrix, rating_algorithm, users=None, rand
     n = 0
     squared_error = 0
 
-    for user in users:
+    for user in tqdm(users):
         user_reviews = np.copy(review_matrix[user]) # save reviews
         user_bool = np.copy(bool_matrix[user])
 
