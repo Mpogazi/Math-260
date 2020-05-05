@@ -14,10 +14,6 @@ returns: rating
 '''
 
 
-
-
-
-
 '''
 Calculating the cosine similarity between two items
 
