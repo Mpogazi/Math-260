@@ -13,7 +13,7 @@ not (1/0 respectively).
 from collections import defaultdict
 from enum import Enum
 import numpy as np
-import random 
+import random
 
 def random_recommend(users, review_matrix, seed=None):
     """Recommends random games that is not yet played for all users.
@@ -83,10 +83,44 @@ def similarity_recommend(users, review_matrix, similarity_function, k = -1):
 
         rec = np.zeros(n)
         for recommender in recommenders[1:k + 1]:
-            weight = similarites[recommender]
+            weight = similarities[recommender]
             recommendation = review_matrix[recommender]
             rec += -1 * weight * recommendation
         
         recommenders[user] = np.argsort(rec)
 
     return recommendations
+
+class AveragePredictor:
+    
+    '''
+    Implements an average predictor which is sped up by using online average
+    calculations.
+    '''
+
+    def __init__(self, rating_matrix, bool_matrix):
+        self.rating_matrix = np.copy(rating_matrix)
+        self.bool_matrix = np.copy(bool_matrix)
+        self.rating_sum = np.sum(rating_matrix, axis=0)
+        self.counts = np.sum(bool_matrix, axis=0)
+
+    def predict(self, user, game, _rating_matrix, _bool_matrix):
+        game_sum = self.rating_sum[game]
+        game_count = self.counts[game]
+        if self.bool_matrix[user, game] == 1:
+            return (game_sum - self.rating_matrix[user, game]) / (game_count - 1)
+        else:
+            return game_sum / game_count
+
+class RandomPredictor:
+    
+    '''
+    Implements a random guesser which guesses using the random function it
+    is passed
+    '''
+
+    def __init__(self, rand_func):
+        self.rand_func = rand_func
+
+    def predict(self, _user, _game, _rating_matrix, _bool_matrix):
+        return self.rand_func()

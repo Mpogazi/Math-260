@@ -1,5 +1,6 @@
 import csv
 import scipy.sparse as sp
+import numpy as np
 
 def minimize_games(games_path, output_path, verbose=False):
     """
@@ -405,7 +406,7 @@ def parse_data(games_path, reviews_path, verbose=False):
         print(' - Parsing data complete\n')
     return games, users
 
-def create_review_matrix(games, users, verbose=False):
+def create_review_matrix(games, users, sparse=True, verbose=False):
     '''
     Using the games and users dataset creates a sparse matrix of reviews,
     a sparse matrix of if a user has done a review, and maps from 
@@ -414,6 +415,7 @@ def create_review_matrix(games, users, verbose=False):
     -------------------------
     games - the games dataset
     users - the users dataset
+    sparse - whether or not to use a sparse matrix representation
     verbose - whether to log progress
     '''
 
@@ -447,32 +449,51 @@ def create_review_matrix(games, users, verbose=False):
         users_map['reverse'].append(user_name)
         index += 1
 
-    if verbose:
-        print(' - Generating coordinates')
+    if sparse:
+        if verbose:
+            print(' - Creating sparse matrices')
+            print('   - Generating coordinates')
 
-    ratings = []
-    bools = []
+        ratings = []
+        bools = []
 
-    row_idx = []
-    col_idx = []
+        row_idx = []
+        col_idx = []
 
-    for game_name in games:
-        game_index = games_map['forward'][game_name]
-        game = games[game_name]
-        for review in game['reviews']:
-            user_name = review['user']
-            rating = review['rating']
-            user_index = users_map['forward'][user_name]
-            ratings.append(rating)
-            bools.append(1)
-            row_idx.append(user_index)
-            col_idx.append(game_index)
+        for game_name in games:
+            game_index = games_map['forward'][game_name]
+            game = games[game_name]
+            for review in game['reviews']:
+                user_name = review['user']
+                rating = review['rating']
+                user_index = users_map['forward'][user_name]
+                ratings.append(rating)
+                bools.append(1)
+                row_idx.append(user_index)
+                col_idx.append(game_index)
     
-    if verbose:
-        print(' - Creating sparse matrices')
+        if verbose:
+            print('   - Building sparse matrices')
 
-    rating_matrix = sp.coo_matrix((ratings, (row_idx, col_idx)))
-    bool_matrix = sp.coo_matrix((bools, (row_idx, col_idx)))
+        rating_matrix = sp.coo_matrix((ratings, (row_idx, col_idx)))
+        bool_matrix = sp.coo_matrix((bools, (row_idx, col_idx)))
+
+    else:
+        if verbose:
+            print(' - Creating dense matrices')
+
+        rating_matrix = np.zeros((len(users), len(games)))
+        bool_matrix = np.zeros(rating_matrix.shape)
+
+        for game_name in games:
+            game_index = games_map['forward'][game_name]
+            game = games[game_name]
+            for review in game['reviews']:
+                user_name = review['user']
+                rating = review['rating']
+                user_index = users_map['forward'][user_name]
+                rating_matrix[user_index, game_index] = rating
+                bool_matrix[user_index, game_index] = 1
 
     if verbose:
         print(' - Matrices created\n')
