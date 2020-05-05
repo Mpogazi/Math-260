@@ -38,7 +38,8 @@ class TestLOOCrossValidatoion(unittest.TestCase):
 
         alpha = 0.75 # remove all reviews for the user
         scores = score.loocv(alpha, review_matrix, recommendation_algo)
-        correct = [(0, 1, 1, 2), (1, 1, 0, 2), (1, 2, 0, 1), (0, 2, 1, 1), (0, 0, 1, 3), (0, 2, 1, 1)]
+        correct = {0 : (0, 1, 1, 2), 1 : (1, 1, 0, 2), 2 : (1, 2, 0, 1),
+                   3 : (0, 2, 1, 1), 4 : (0, 0, 1, 3), 5 : (0, 2, 1, 1)}
         self.assertEqual(scores, correct)
 
 if __name__ == "__main__":

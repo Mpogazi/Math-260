@@ -46,7 +46,6 @@ def minimize_games(games_path, output_path, verbose=False):
     if verbose:
         print(' - Minimization complete\n')
 
-
 def minimize_reviews(reviews_path, output_path, verbose=False):
     """
     Reads in the reviews and strips out the comments, ID, and index fields
@@ -183,6 +182,154 @@ def build_debug(o_games_path, d_games_path, o_reviews_path, d_reviews_path,
     if verbose:
         print(' - Debug datasets complete\n')
 
+def build_games_over_threshold(o_games_path, t_games_path, o_reviews_path,
+                                t_reviews_path, threshold=5000, verbose=False):
+    '''
+    Reads in games and reviews dataset (minimized) and pulls out all the
+    games with more than the threshold number of reviews, then pulls
+    out the reviews for just those games
+    ------------------------- 
+    o_games_path - location of the original games
+    t_games_path - location to write the thresholded games
+    o_reviews_path - location of the original reviews
+    t_reviews_path - location of the reviews on just games over threshold
+    threshold - number of reviews needed
+    verbose - whether to log progress
+    '''
+    if verbose:
+        print('Building dataset using threshold (on games)')
+        print(' - Reading in games')
+    
+    o_games_file = open(o_games_path, mode='r')
+    games_reader = csv.DictReader(o_games_file)
+    
+    games = {}
+    for game in games_reader:
+        games[game['name']] = game
+        game['users_rated'] = 0
+    o_games_file.close()
+
+    if verbose:
+        print(' - Scanning reviews')
+
+    o_reviews_file = open(o_reviews_path, mode='r')
+    reviews_reader = csv.DictReader(o_reviews_file)
+
+    for review in reviews_reader:
+        games[review['name']]['users_rated'] += 1
+    o_reviews_file.close()
+
+    if verbose:
+        print(' - Filtering games below threshold')
+
+    enough_games = {}
+    for game in games:
+        if games[game]['users_rated'] < threshold:
+            continue
+        enough_games[game] = games[game]
+
+    if verbose:
+        print(' - Writing popular games')
+
+    t_games_file = open(t_games_path, mode='w')
+    fields = ['name', 'rank', 'average', 'bayes_average', 'users_rated']
+    games_writer = csv.DictWriter(t_games_file, fieldnames=fields)
+    games_writer.writeheader()
+
+    for game in enough_games:
+        games_writer.writerow(enough_games[game])
+    t_games_file.close()
+
+    if verbose:
+        print(' - Writing popular game reviews')
+    
+    o_reviews_file = open(o_reviews_path, mode='r')
+    t_reviews_file = open(t_reviews_path, mode='w')
+    reviews_reader = csv.DictReader(o_reviews_file)
+    fields = ['user', 'rating', 'name']
+    reviews_writer = csv.DictWriter(t_reviews_file, fieldnames=fields)
+    reviews_writer.writeheader()
+
+    for review in reviews_reader:
+        if review['name'] in enough_games:
+            reviews_writer.writerow(review)
+
+    o_reviews_file.close()
+    t_reviews_file.close()
+
+    if verbose:
+        print(' - Popular games dataset complete\n')
+
+def build_users_over_threshold(games_path, o_reviews_path, f_reviews_path,
+                                 frac, verbose=False):
+    '''
+    Builds a dataset with users filtered out who have need played a sufficient
+    fraction of games in the dataset
+    -------------------------
+    games_path - location of the games dataset
+    o_reviews_path - the original reviews dataset (of only reviews on above games)
+    f_reviews_path - where to right the new reviews dataset path
+    frac - the fraction of the games a user must play to be included
+    verbose - whether to log progress
+    '''
+    if verbose:
+        print('Building dataset using threshold (on users)')
+        print(' - Loading in games')
+
+    games_file = open(games_path, mode='r')
+    games_reader = csv.DictReader(games_file)
+    
+    games = {}
+    for game in games_reader:
+        games[game['name']] = 1
+    games_file.close()
+
+    threshold = len(games) * frac
+
+    if verbose:
+        print(' - Scanning reviews')
+
+    o_reviews_file = open(o_reviews_path, mode='r')
+    reviews_reader = csv.DictReader(o_reviews_file)
+
+    users = {}
+    for review in reviews_reader:
+        user = review['user']
+        if user in users:
+            users[user] += 1
+        else:
+            users[user] = 1
+    o_reviews_file.close()
+
+    if verbose:
+        print(' - Filtering users below threshold')
+
+    enough_users = {}
+    for user in users:
+        if users[user] < threshold:
+            continue
+        enough_users[user] = 1
+
+    if verbose:
+        print(' - Writing popular game reviews')
+    
+    o_reviews_file = open(o_reviews_path, mode='r')
+    f_reviews_file = open(f_reviews_path, mode='w')
+    reviews_reader = csv.DictReader(o_reviews_file)
+    fields = ['user', 'rating', 'name']
+    reviews_writer = csv.DictWriter(f_reviews_file, fieldnames=fields)
+    reviews_writer.writeheader()
+
+    for review in reviews_reader:
+        if review['user'] in enough_users:
+            reviews_writer.writerow(review)
+
+    o_reviews_file.close()
+    f_reviews_file.close()
+
+    if verbose:
+        print(' - Final dataset complete\n')
+
 def parse_data(games_path, reviews_path, verbose=False):
     """
     Reads in the files of game data and reviews and spits out dictionaries
@@ -262,7 +409,8 @@ def create_review_matrix(games, users, verbose=False):
     '''
     Using the games and users dataset creates a sparse matrix of reviews,
     a sparse matrix of if a user has done a review, and maps from 
-    games/users to matrix index
+    games/users to matrix index. In the matrices, rows are users and
+    columns are games.
     -------------------------
     games - the games dataset
     users - the users dataset
@@ -302,8 +450,12 @@ def create_review_matrix(games, users, verbose=False):
     if verbose:
         print(' - Generating coordinates')
 
-    rating_coords = []
-    bool_coords = []
+    ratings = []
+    bools = []
+
+    row_idx = []
+    col_idx = []
+
     for game_name in games:
         game_index = games_map['forward'][game_name]
         game = games[game_name]
@@ -311,21 +463,22 @@ def create_review_matrix(games, users, verbose=False):
             user_name = review['user']
             rating = review['rating']
             user_index = users_map['forward'][user_name]
-            rating_coords.append([rating, user_index, game_index])
-            bool_coords.append([1, user_index, game_index])
+            ratings.append(rating)
+            bools.append(1)
+            row_idx.append(user_index)
+            col_idx.append(game_index)
     
     if verbose:
         print(' - Creating sparse matrices')
 
-    rating_matrix = sp.coo_matrix(rating_coords)
-    bool_matrix = sp.coo_matrix(bool_coords)
+    rating_matrix = sp.coo_matrix((ratings, (row_idx, col_idx)))
+    bool_matrix = sp.coo_matrix((bools, (row_idx, col_idx)))
 
     if verbose:
         print(' - Matrices created\n')
 
     return games_map, users_map, rating_matrix, bool_matrix
     
-
 if __name__ == "__main__":
     original_games = "data/2019-05-02.csv"
     original_reviews = "data/bgg-13m-reviews.csv"
@@ -333,7 +486,17 @@ if __name__ == "__main__":
     minimized_reviews = "data/bgg-13m-reviews-min.csv"
     debug_games = "data/2019-05-02-debug.csv"
     debug_reviews = "data/bgg-13m-reviews-debug.csv"
-    minimize_games(original_games, minimized_games, True)
-    minimize_reviews(original_reviews, minimized_reviews, True)
-    build_debug(minimized_games, debug_games, minimized_reviews, debug_reviews,
-                 1000, 1000000, True)
+    final_games = "data/games.csv"
+    over5k_reviews = "data/bgg-reviews-5k.csv"
+    final_reviews = "data/reviews.csv"
+    #minimize_games(original_games, minimized_games, True) # uncomment if you don't have this
+    #minimize_reviews(original_reviews, minimized_reviews, True) # uncomment if you don't have this
+    #build_debug(minimized_games, debug_games, minimized_reviews, debug_reviews,
+    #             1000, 1000000, True) # optional
+
+    build_games_over_threshold(minimized_games, final_games, minimized_reviews,
+                                 over5k_reviews, 5000, verbose=True)
+    build_users_over_threshold(final_games, over5k_reviews, final_reviews,
+                                 0.10, verbose=True) 
+    
+    

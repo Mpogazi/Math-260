@@ -18,7 +18,7 @@ def remove_reviews(alpha, user, review_matrix, randomized):
         game = reviewed_games[i]
         review_matrix[user, game] = 0
 
-def loocv(alpha, review_matrix, recommendation_algorithm, randomized=False):
+def loocv(alpha, review_matrix, recommendation_algorithm, users=None, randomized=False):
     """Performs LOO cross validation by removing a percent $\alpha$ of
     each users reviews and performing recommendation based upon that.
     
@@ -31,6 +31,8 @@ def loocv(alpha, review_matrix, recommendation_algorithm, randomized=False):
        review_matrix : A reviews matrix.
        recommendation algorithm : A function that takes a user and a 
        training set review_matrix and outputs a list of recommendations.
+       users : A set of users to perform LOO cross validation on. If none,
+       runs for all users.
 
     Returns: 
        user_scores : A list where each index is a user ID and
@@ -40,8 +42,11 @@ def loocv(alpha, review_matrix, recommendation_algorithm, randomized=False):
     """
 
     num_users = review_matrix.shape[0]
-    user_scores = []
-    for user in range(num_users):
+    if users is None:
+        users = range(num_users)
+        
+    user_scores = {}
+    for user in users:
         user_reviews = np.copy(review_matrix[user]) # save reviews
 
         # count positives + negatives
@@ -58,6 +63,6 @@ def loocv(alpha, review_matrix, recommendation_algorithm, randomized=False):
         TN = N - FP
         FN = P - TP
 
-        user_scores.append((TP, TN, FP, FN))
+        user_scores[user] = (TP, TN, FP, FN)
                                                                       
     return user_scores

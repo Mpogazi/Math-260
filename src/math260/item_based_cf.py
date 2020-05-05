@@ -40,6 +40,8 @@ def PearsonSimilarity(ratings1, ratings2):
     Y = np.array(ratings2['ratings'])
     return ma.corrcoef(ma.masked_invalid(X), ma.masked_invalid(Y))[0][1]
 
+# Can be replaced with np.corrcoef(...)
+
 '''
 Creates a similarity matrix of the games
 For the moment, we are using just the PearsonSimilarity
