@@ -174,10 +174,9 @@ class ItemPredictor:
         self.done           = 0
 
     def predict(self, user, game, rating_matrix, bool_matrix):
-        rated_games = np.zeros((len(self.games['reverse']), 2))
+        rated_games = np.zeros((rating_matrix.shape[1],2))
         index = 0
-        for key in self.games['reverse']:
-            val = self.games['forward'][key]
+        for val in range(rating_matrix.shape[1]):
             rate = rating_matrix[user, val]
             if (rate != 0) and (val != game):
                 sim = self.sim_f(rating_matrix, game, val)
@@ -185,9 +184,8 @@ class ItemPredictor:
                 rated_games[index][1] = abs(sim)
             index += 1
         
-        k_neighbors = np.sort(rated_games, axis=1)[:self.k]
+        k_neighbors = rated_games[rated_games[:,0].argsort()][-self.k:, :]
         weights     = np.sum(k_neighbors, axis=0)
         self.done += 1
-        print(self.done)
         prediction = weights[0] / weights[1]
         return prediction
