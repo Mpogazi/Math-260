@@ -79,8 +79,8 @@ class SimilarityPredictor:
 class AveragePredictor:
     
     '''
-    Implements an average predictor which is sped up by using online average
-    calculations.
+    Implements an average predictor which for a given game predicts the average
+    rating for that game
     '''
 
     def __init__(self, rating_matrix, bool_matrix):
@@ -96,6 +96,54 @@ class AveragePredictor:
             return (game_sum - self.rating_matrix[user, game]) / (game_count - 1)
         else:
             return game_sum / game_count
+
+class UserAveragePredictor:
+    
+    '''
+    Implements a predictor which for a given user predicts the average of their
+    ratings
+    '''
+    
+    def __init__(self):
+        pass
+
+    def predict(self, user, _game, rating_matrix, bool_matrix):
+        return np.sum(rating_matrix[user,:]) / np.sum(bool_matrix[user,:])
+
+class GlobalAveragePredictor:
+    '''
+    Implements a global average predictor which always predicts the average of
+    all the reviews in the dataset
+    '''
+
+    def __init__(self, rating_matrix, bool_matrix):
+        self.average = np.sum(rating_matrix) / np.sum(bool_matrix)
+
+    def predict(self, user, game, _rating_matrix, _bool_matrix):
+        return self.average    
+
+class TwoWayAveragePredictor:
+    '''
+    Uses the global, game, and user averages together to include bias
+    from both game quality and user rating pattern
+    '''
+
+    def __init__(self, rating_matrix, bool_matrix):
+        self.global_predictor = GlobalAveragePredictor(rating_matrix, bool_matrix)
+        self.game_predictor = AveragePredictor(rating_matrix, bool_matrix)
+        self.user_predictor = UserAveragePredictor()
+
+    def predict(self, user, game, rating_matrix, bool_matrix):
+        global_avg = self.global_predictor.predict(user, game,
+            rating_matrix, bool_matrix)
+        game_avg = self.game_predictor.predict(user, game,
+            rating_matrix, bool_matrix)
+        user_avg = self.user_predictor.predict(user, game,
+            rating_matrix, bool_matrix)
+
+        # global is the base, (user - global) adjust for harshness of user,
+        # (game - global) adjust for quality of game.
+        return global_avg + (user_avg - global_avg) + (game_avg - global_avg)
 
 class RandomPredictor:
     

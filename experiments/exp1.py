@@ -14,13 +14,3 @@ if __name__ == "__main__":
     rmse, errors = score.rmsecv(0.1, rating_matrix, bool_matrix, predictor.predict)
 
     print('RMSE:\t\t{}'.format(rmse))
-
-
-    
-    
-
-
-
-
-
-    
