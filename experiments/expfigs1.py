@@ -1,10 +1,10 @@
-import data_prep
+from math260 import data_prep, recommend, score
 import matplotlib.pyplot as plt 
 import numpy as np
 
 # choose your datasets
-GAMES_DATA_FILE = "data/2019-05-02-5k.csv"
-REVIEWS_FILE = "data/bgg-reviews-5k.csv"
+GAMES_DATA_FILE = "data/2019-05-02-min.csv"
+REVIEWS_FILE = "data/bgg-13m-reviews-min.csv"
 
 games, users = data_prep.parse_data(GAMES_DATA_FILE, REVIEWS_FILE, True)
 
@@ -40,14 +40,14 @@ plt.hist(game_count, bins=200, log=True)
 plt.title('Review Distribution over Games')
 plt.xlabel('Number of Reviews')
 plt.ylabel('Number of Games')
-plt.savefig('games-hist.png')
+plt.savefig('figures/games-hist.png')
 
 plt.clf()
 plt.hist(user_count, bins=200, log=True)
 plt.title('Review Distribution over Users')
 plt.xlabel('Number of Reviews')
 plt.ylabel('Number of Users')
-plt.savefig('users-hist.png')
+plt.savefig('figures/users-hist.png')
 
 game_cum = np.cumsum(game_count) / num_reviews
 user_cum = np.cumsum(user_count) / num_reviews
@@ -58,13 +58,11 @@ plt.plot(np.arange(num_games)+1, game_cum)
 plt.title('Distribution of Reviews Included as Number of Games Varies')
 plt.xlabel('Number of Games Included')
 plt.ylabel('Portion of Reviews Included')
-plt.savefig('games-cdf.png')
+plt.savefig('figures/games-cdf.png')
 
 plt.clf()
 plt.plot(np.arange(num_users)+1, user_cum)
 plt.title('Distribution of Reviews Included as Number of Users Varies')
 plt.xlabel('Number of Users Included')
 plt.ylabel('Portion of Reviews Included')
-plt.savefig('users-cdf.png')
-
-
+plt.savefig('figures/users-cdf.png')

@@ -25,17 +25,30 @@ if __name__ == "__main__":
     cosine_predictor = recommend.SimilarityPredictor(cosine_similarity, 120)
     msd_predictor = recommend.SimilarityPredictor(msd_similarity, 120)
     avg_predictor = recommend.AveragePredictor(rating_matrix, bool_matrix)
+    uavg_predictor = recommend.AveragePredictor(rating_matrix, bool_matrix)
+    gavg_predictor = recommend.GlobalAveragePredictor(rating_matrix, bool_matrix)
+    tavg_predictor = recommend.TwoWayAveragePredictor(rating_matrix, bool_matrix)
 
     cosine_rmse, _ = score.rmsecv(0.1, rating_matrix, bool_matrix,
-                                  cosine_predictor.predict, users=range(0, 1000))
+                                cosine_predictor.predict, users=range(0, 1000))
     sim_rmse, _ = score.rmsecv(0.1, rating_matrix, bool_matrix,
-                               msd_predictor.predict, users=range(0, 1000))
+                                msd_predictor.predict, users=range(0, 1000))
     avg_rmse, _ = score.rmsecv(0.1, rating_matrix, bool_matrix,
-                               avg_predictor.predict, users=range(0, 1000))
+                                avg_predictor.predict, users=range(0, 1000))
+    uavg_rmse, _ = score.rmsecv(0.1, rating_matrix, bool_matrix,
+                                uavg_predictor.predict, users=range(0, 1000))
+    gavg_rmse, _ = score.rmsecv(0.1, rating_matrix, bool_matrix,
+                                gavg_predictor.predict, users=range(0, 1000))
+    tavg_rmse, _ = score.rmsecv(0.1, rating_matrix, bool_matrix,
+                                tavg_predictor.predict, users=range(0, 1000))
 
     print(f"Cosine predictor RMSE: {cosine_rmse}")
     print(f"MSD predictor RMSE: {sim_rmse}")
-    print(f"Average predictor RMSE: {avg_rmse}")
+    print(f"Game average predictor RMSE: {avg_rmse}")
+    print(f"User average predictor RMSE: {uavg_rmse}")
+    print(f"Global average predictor RMSE: {gavg_rmse}")
+    print(f"Two way average predictor RMSE: {tavg_rmse}")
+
 
 
     
