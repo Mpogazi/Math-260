@@ -109,3 +109,37 @@ class RandomPredictor:
 
     def predict(self, _user, _game, _rating_matrix, _bool_matrix):
         return self.rand_func()
+
+
+class ItemPredictor:
+    """
+    Implements a similarity predictor using item similarity measure.
+    
+    """
+
+    def __init__(self, k, games_map, sim_f):
+        self.recommendation = None
+        self.user           = None
+        self.sim_f          = sim_f
+        self.k              = k
+        self.games          = games_map
+        self.done           = 0
+
+    def predict(self, user, game, rating_matrix, bool_matrix):
+        rated_games = np.zeros((len(self.games['reverse']), 2))
+        index = 0
+        for key in self.games['reverse']:
+            val = self.games['forward'][key]
+            rate = rating_matrix[user, val]
+            if (rate != 0) and (val != game):
+                sim = self.sim_f(rating_matrix, game, val)
+                rated_games[index][0] = sim * rate
+                rated_games[index][1] = abs(sim)
+            index += 1
+        
+        k_neighbors = np.sort(rated_games, axis=1)[:self.k]
+        weights     = np.sum(k_neighbors, axis=0)
+        self.done += 1
+        print(self.done)
+        prediction = weights[0] / weights[1]
+        return prediction
