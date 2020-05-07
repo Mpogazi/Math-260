@@ -173,25 +173,11 @@ class ItemPredictor:
     def predict(self, user, game, rating_matrix, bool_matrix):
         sim_games = self.sim_matrix[game]
         ratings   = rating_matrix[user]
-
-        # this part (I really can't figure it out, sorry )
-        ks = np.array((sim_games, ratings))
-        ks = ks[ks[:,0].argsort()][-self.k:, :]
-        return (np.dot(ks[0], ks[1]) / np.sum(ks[0]))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        x = (np.array((sim_games, ratings)))
+        x = (x.T)[x[1] != 0].T
+        sort = np.argsort(x[0])
+        ks = np.array((x[0][sort], x[1][sort]))
+        if self.k < ks.shape[0]:
+            ks = ks[:self.k, :self.k]
+        prediction = (np.dot(ks[0], ks[1]) / np.sum(np.absolute(ks[0])))
+        return prediction

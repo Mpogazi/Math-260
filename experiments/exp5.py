@@ -1,7 +1,9 @@
 from math260 import data_prep, recommend, score, item_based_cf
 import numpy as np
 
-
+# PLEASE SWAP THESE FOR REAL EVALUATION
+# "data/2019-05-02-debug.csv" #
+# "data/bgg-13m-reviews-debug.csv"
 GAMES_FILE = "data/games.csv"
 REVIEWS_FILE = "data/reviews.csv"
 
@@ -9,7 +11,6 @@ if __name__ == "__main__":
     games, users = data_prep.parse_data(GAMES_FILE, REVIEWS_FILE, verbose=False)
     games_map, users_map, rating_matrix, bool_matrix = data_prep.create_review_matrix(games, users, sparse=False, verbose=True)
     
-
     cosine_predictor = recommend.ItemPredictor(120, rating_matrix, item_based_cf.CosineSimilarity, item_based_cf.sim_matrix)
     pearson_predictor= recommend.ItemPredictor(120, rating_matrix, item_based_cf.PearsonSimilarity, item_based_cf.sim_matrix)
 
