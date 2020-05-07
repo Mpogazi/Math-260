@@ -5,67 +5,35 @@ from tqdm import tqdm
 
 '''
 Calculating the cosine similarity between two items
-
-args: ratings1, ratings2 (array of ratings)
-
+args: a 2 column array
 returns: similarity_score(a float)
 '''
-def CosineSimilarity(r1, r2):
-    return (np.dot(r1, r2) / (np.sqrt(np.dot(r1, r1) * np.sqrt(np.dot(r2, r2)))))
+def CosineSimilarity(x):
+    x = x[np.logical_not(np.logical_or(x[:,0] == 0, x[:,1] == 0))]
+    return (np.dot(x[:,0], x[:,1]) / (np.sqrt(np.dot(x[:,0], x[:,0])) * np.sqrt(np.dot(x[:,1], x[:,1]))))
 
 '''
 Calculating the similarity between two items
-
-args: ratings1, ratings2 (arrays of ratings)
-eg: ratings1 = [1, 9.0, 1.0, 10.0, 8.7]
-
+args: a 2 column array
 returns: similarity_score (a float)
 '''
-def PearsonSimilarity(review_matrix, i, j):
-    data = data_arrange(review_matrix, i, j)
-    return np.corrcoef(data[0], data[1])[0][1]
-
-# Can be replaced with np.corrcoef(...)
+def PearsonSimilarity(x):
+    x = x[np.logical_not(np.logical_or(x[:,0] == 0, x[:,1] == 0))]
+    return np.corrcoef(x[:,0], x[:,1])[0, 1]
 
 '''
-Creates a similarity matrix of the games
-For the moment, we are using just the PearsonSimilarity
-
-Optimizations: f(a, b) = f(b, a) so we might as well compute
-               similarities for half of the matrix
-               (However, are all the kernels gonna be symmetric??)
-
-args: games_map, review_matrix, f (similarity_metric)
-
+Creates a similarity matrix
+Caution: If the kernel is not symmetric, we have issues!
+args: review_matrix, f (similarity_metric)
 returns: similarity_matrix (as a np.array)
 '''
-def sim_matrix(games_map, review_matrix, f):
-    games = games_map['reverse']
-    matrix = np.zeros((len(games), len(games)))
-    for i in tqdm(range(len(games))):
-        for j in range(len(games)):
-            data = data_arrange(review_matrix, i, j)
-            matrix[i, j] = f(data[0], data[1])
+def sim_matrix(review_matrix, f):
+    size = review_matrix.shape[1]
+    matrix = np.zeros((size, size))
+    # Completing the upper half of the function
+    print('Building Similarity Matrices')
+    for i in tqdm(range(size)):
+        for j in range(i, size):
+            matrix[i, j] = f(review_matrix[:,(i, j)])
+            matrix[j, i] = matrix[i, j]
     return matrix
-
-'''
-Finds which users rated the two games and 
-returns two arrays (as a tuple) of those shared ratings
-    
-args: review_matrix
-    
-returns: (ratings1, ratings2)
-'''
-def data_arrange(review_matrix, id1, id2):
-    rating_1 = review_matrix[:,id1]
-    rating_2 = review_matrix[:,id2]
-    x_rmv = []
-    y_rmv = []
-    for i in range(len(rating_1)):
-        x = rating_1[i]
-        y = rating_2[i]
-        if ((x == 0) or (y == 0)):
-            x_rmv.append(i)
-            y_rmv.append(i)
-    
-    return (np.delete(rating_1, x_rmv), np.delete(rating_2, y_rmv))
