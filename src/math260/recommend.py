@@ -88,6 +88,50 @@ def similarity_recommend(users, rating_matrix, bool_matrix, similarity_function,
 
     return recommendations
 
+def random_similarity_recommend(users, rating_matrix, bool_matrix, 
+                                    similarity_function, k = -1, alpha=1):
+    """Predicts a set of ratings for a user using a
+    weighted majority vote of their k most similar neighbors.
+
+       Args:
+          users : list of user indices to recommend games for
+          rating_matrix : the review matrix
+          similarity_function : a function that defines the similarity between
+          two users set of recommendations. 
+          k : the number of most similar users to use in the WMV. if k == -1,
+          then all users are considered.
+          alpha : fraction of users to randomly sample from
+        
+       Returns:
+          recommendations : a map from user indices to predicted ratings
+    """
+    n, m = rating_matrix.shape
+    if k == -1:
+        k = n 
+        
+    sample = np.random.permutation(n)[:int(alpha * n)]
+
+    recommendations = defaultdict(list)
+    for user in users:
+        sim = lambda x: -1 * similarity_function(x, user, rating_matrix, bool_matrix)
+        similarities = list(map(sim, sample)) 
+        recommenders = np.argsort(similarities)
+
+        rec = np.zeros(m)
+        weights = np.zeros(m)
+        for recommender in recommenders[0:k]:
+            weight = -1 * similarities[recommender]
+            weight_v = np.multiply(weight, bool_matrix[recommender])
+            recommendation = rating_matrix[recommender]
+            rec += np.multiply(weight_v, recommendation)
+            weights += weight_v
+        weights[weights == 0] = 1
+        rec = np.divide(rec, weights)
+        
+        recommendations[user] = rec
+
+    return recommendations
+
 class ItemSimilarityPredictor:
     """
     Implements a similarity predictor using a user similarity
@@ -150,6 +194,33 @@ class SimilarityPredictor:
 
         return self.recommendation[game]
 
+
+class RandomSimilarityPredictor:
+
+    """
+    Implements the same as above, just with random sampling for the users we
+    think may be nearby
+    """
+
+    def __init__(self, similarity_f, k, alpha):
+        self.recommendation = None
+        self.user           = None
+        self.similarity_f   = similarity_f
+        self.k              = k
+        self.alpha          = alpha
+
+    def predict(self, user, game, rating_matrix, bool_matrix):
+        if user == self.user:
+            return self.recommendation[game]
+        
+        recommendations = random_similarity_recommend({user}, rating_matrix, bool_matrix,
+                                               self.similarity_f, k = self.k, alpha=self.alpha)
+        self.user = user
+        self.recommendation = recommendations[user]
+
+        return self.recommendation[game]
+
+
 class AveragePredictor:
     
     '''
@@ -183,6 +254,18 @@ class UserAveragePredictor:
     def predict(self, user, _game, rating_matrix, bool_matrix):
         return np.sum(rating_matrix[user,:]) / np.sum(bool_matrix[user,:])
 
+class GameAveragePredictor:
+    '''
+    Implements a predictor which for a given game predicts the average of its
+    ratings
+    '''
+    
+    def __init__(self):
+        pass
+
+    def predict(self, _user, game, rating_matrix, bool_matrix):
+        return np.sum(rating_matrix[:,game]) / np.sum(bool_matrix[:,game])
+
 class GlobalAveragePredictor:
     '''
     Implements a global average predictor which always predicts the average of
@@ -203,7 +286,7 @@ class TwoWayAveragePredictor:
 
     def __init__(self, rating_matrix, bool_matrix):
         self.global_predictor = GlobalAveragePredictor(rating_matrix, bool_matrix)
-        self.game_predictor = AveragePredictor(rating_matrix, bool_matrix)
+        self.game_predictor = GameAveragePredictor()
         self.user_predictor = UserAveragePredictor()
 
     def predict(self, user, game, rating_matrix, bool_matrix):
