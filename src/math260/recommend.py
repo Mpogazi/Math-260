@@ -1,11 +1,12 @@
 """Recommendation Algorithms Module"""
 
+from tqdm import tqdm
 from collections import defaultdict
 from enum import Enum
 import numpy as np
 import random
 
-def item_similarity_recommend(users, rating_matrix, bool_matrix, similarity_function, k = -1):
+def item_similarity_recommend(users, rating_matrix, bool_matrix, similarity_matrix, k = -1):
     """Predicts a set of ratings for a user using
     a WMV over the k-nearest neighbors of each game.
 
@@ -33,8 +34,7 @@ def item_similarity_recommend(users, rating_matrix, bool_matrix, similarity_func
             if rating == 0:
                 continue
 
-            sim = lambda x: -1 * similarity_function(x, game, rating_matrix, bool_matrix)
-            similarities = list(map(sim, range(0, m))) # TODO: make random sample
+            similarities = similarity_matrix[game]
             recommenders = np.argsort(similarities)
 
             for recommender in recommenders[0:k]:
@@ -70,7 +70,7 @@ def similarity_recommend(users, rating_matrix, bool_matrix, similarity_function,
     recommendations = defaultdict(list)
     for user in users:
         sim = lambda x: -1 * similarity_function(x, user, rating_matrix, bool_matrix)
-        similarities = list(map(sim, range(0, n))) # TODO: make random sample
+        similarities = list(map(sim, range(0, 1000))) # TODO: make random sample
         recommenders = np.argsort(similarities)
 
         rec = np.zeros(m)
@@ -146,18 +146,25 @@ class ItemSimilarityPredictor:
 
     """
 
-    def __init__(self, similarity_f, k):
+    def __init__(self, similarity_f, k, rating_matrix, bool_matrix):
         self.recommendation = None
         self.user           = None
-        self.similarity_f   = similarity_f
         self.k              = k
+        self.similarity_matrix = None
+
+        m = rating_matrix.shape[1]
+        self.similarity_matrix = np.zeros((m, m))
+        for i in tqdm(range(0, m)):
+            for j in range(0, m):
+                self.similarity_matrix[i, j] = similarity_f(i, j, rating_matrix, bool_matrix)
 
     def predict(self, user, game, rating_matrix, bool_matrix):
+
         if user == self.user:
             return self.recommendation[game]
         
         recommendations = item_similarity_recommend({user}, rating_matrix, bool_matrix,
-                                                    self.similarity_f, k = self.k)
+                                                    self.similarity_matrix, k = self.k)
         self.user = user
         self.recommendation = recommendations[user]
 
