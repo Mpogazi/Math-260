@@ -2,6 +2,13 @@ import numpy as np
 import random
 from tqdm import tqdm
 
+def remove_fraction(alpha, review_matrix, bool_matrix):
+    removed = []
+    for user in range(review_matrix.shape[0]):
+        removed.append(remove_reviews(alpha, user, review_matrix, bool_matrix, True))
+    return removed
+    
+
 def remove_reviews(alpha, user, review_matrix, bool_matrix, randomized):
     """Removes a fraction alpha of the reviews from the specified user."""
 
@@ -23,6 +30,27 @@ def remove_reviews(alpha, user, review_matrix, bool_matrix, randomized):
         bool_matrix[user, game] = 0
 
     return removed
+
+def rmse(removed, review_matrix, bool_matrix, rating_algorithm, users=None, randomized=False):
+
+    num_users = review_matrix.shape[0]
+    if users is None:
+        users = range(num_users)
+
+    n = 0
+    squared_error = 0
+
+    for user in tqdm(users):
+        rems = removed[user]
+
+        for r in rems:
+            [game, true_rating] = r
+            predicted_rating = rating_algorithm(user, game, review_matrix, bool_matrix)
+
+            n += 1
+            squared_error += (true_rating - predicted_rating)**2
+
+    return np.sqrt(squared_error / n)
     
 def rmsecv(alpha, review_matrix, bool_matrix, rating_algorithm, users=None, randomized=False):
     '''

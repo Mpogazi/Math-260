@@ -236,8 +236,8 @@ class ItemPredictor:
     
     """
 
-    def __init__(self, k, rating_matrix, sim_f, sim_mat_builder):
-        self.sim_matrix     = sim_mat_builder(rating_matrix, sim_f)
+    def __init__(self, k, rating_matrix, bool_matrix, sim_f, sim_mat_builder):
+        self.sim_matrix     = sim_mat_builder(rating_matrix, bool_matrix, sim_f)
         self.sim_f          = sim_f
         self.k              = k
 
@@ -245,12 +245,14 @@ class ItemPredictor:
         sim_games = self.sim_matrix[game]
         ratings   = rating_matrix[user]
         x = (np.array((sim_games, ratings)))
+
         x = (x.T)[x[1] != 0].T
-        sort = np.argsort(x[0])
-        
-        if self.k < x.shape[0]:
-            ks = np.array((x[0][sort][self.k], x[1][sort][self.k]))
+        sort = np.argsort(-x[0])
+        x = x[:,sort]
+
+        if self.k < x.shape[1]:
+            ks = x[:,:self.k]
         else:
-            ks = np.array((x[0][sort], x[1][sort]))
+            ks = x
         prediction = (np.dot(ks[0], ks[1]) / np.sum(np.absolute(ks[0])))
         return prediction

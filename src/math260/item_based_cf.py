@@ -27,13 +27,13 @@ Caution: If the kernel is not symmetric, we have issues!
 args: review_matrix, f (similarity_metric)
 returns: similarity_matrix (as a np.array)
 '''
-def sim_matrix(review_matrix, f):
+def sim_matrix(review_matrix, bool_matrix, f):
     size = review_matrix.shape[1]
     matrix = np.zeros((size, size))
     # Completing the upper half of the function
     print('Building Similarity Matrices')
     for i in tqdm(range(size)):
         for j in range(i, size):
-            matrix[i, j] = f(review_matrix[:,(i, j)])
+            matrix[i, j] = f(review_matrix[:,(i, j)], bool_matrix[:,(i,j)])
             matrix[j, i] = matrix[i, j]
     return matrix
