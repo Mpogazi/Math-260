@@ -2,8 +2,8 @@ from math260 import data_prep, recommend, score, item_based_cf
 import numpy as np
 
 # PLEASE SWAP THESE FOR REAL EVALUATION
-# "data/2019-05-02-debug.csv" #
-# "data/bgg-13m-reviews-debug.csv"
+# "data/2019-05-02-debug.csv" # "data/games.csv"
+# "data/bgg-13m-reviews-debug.csv" "data/reviews.csv"
 GAMES_FILE = "data/games.csv"
 REVIEWS_FILE = "data/reviews.csv"
 
