@@ -510,8 +510,8 @@ if __name__ == "__main__":
     final_games = "data/games.csv"
     over5k_reviews = "data/bgg-reviews-5k.csv"
     final_reviews = "data/reviews.csv"
-    #minimize_games(original_games, minimized_games, True) # uncomment if you don't have this
-    #minimize_reviews(original_reviews, minimized_reviews, True) # uncomment if you don't have this
+    minimize_games(original_games, minimized_games, True) # uncomment if you don't have this
+    minimize_reviews(original_reviews, minimized_reviews, True) # uncomment if you don't have this
     #build_debug(minimized_games, debug_games, minimized_reviews, debug_reviews,
     #             1000, 1000000, True) # optional
 
