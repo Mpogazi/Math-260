@@ -34,7 +34,7 @@ def item_similarity_recommend(users, rating_matrix, bool_matrix, similarity_matr
             if rating == 0:
                 continue
 
-            similarities = similarity_matrix[game]
+            similarities = -1 * similarity_matrix[game]
             recommenders = np.argsort(similarities)
 
             for recommender in recommenders[0:k]:
@@ -155,11 +155,14 @@ class ItemSimilarityPredictor:
         m = rating_matrix.shape[1]
         self.similarity_matrix = np.zeros((m, m))
         for i in tqdm(range(0, m)):
-            for j in range(0, m):
+            for j in range(i, m):
                 self.similarity_matrix[i, j] = similarity_f(i, j, rating_matrix, bool_matrix)
 
-    def predict(self, user, game, rating_matrix, bool_matrix):
+        for i in range(0, i):
+            for j in range(0, i):
+                self.similarity_matrix[i, j] = self.similarity_matrix[j, i]
 
+    def predict(self, user, game, rating_matrix, bool_matrix):
         if user == self.user:
             return self.recommendation[game]
         
